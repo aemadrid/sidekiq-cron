@@ -1,6 +1,5 @@
 require 'sidekiq'
 require 'sidekiq/util'
-require 'sidekiq/actor'
 require 'rufus-scheduler'
 
 module Sidekiq
@@ -68,11 +67,11 @@ module Sidekiq
           'queue'       => @queue,
           'description' => @description,
           'args'        => [{
-            'job_class'  => @klass,
-            'job_id'     => SecureRandom.uuid,
-            'queue_name' => @queue,
-            'arguments'  => @args
-          }]
+                              'job_class'  => @klass,
+                              'job_id'     => SecureRandom.uuid,
+                              'queue_name' => @queue,
+                              'arguments'  => @args
+                            }]
         }
       end
 
@@ -232,17 +231,17 @@ module Sidekiq
           #get right data for message
           #only if message wasn't specified before
           message_data = case @klass
-            when Class
-              @klass.get_sidekiq_options.merge(message_data)
-            when String
-              begin
-                @klass.constantize.get_sidekiq_options.merge(message_data)
-              rescue
-                #Unknown class
-                message_data.merge("queue"=>"default")
-              end
+                           when Class
+                             @klass.get_sidekiq_options.merge(message_data)
+                           when String
+                             begin
+                               @klass.constantize.get_sidekiq_options.merge(message_data)
+                             rescue
+                               #Unknown class
+                               message_data.merge("queue"=>"default")
+                             end
 
-          end
+                         end
 
           #override queue if setted in config
           #only if message is hash - can be string (dumped JSON)
@@ -271,11 +270,11 @@ module Sidekiq
         @status = "enabled"
         save
       end
-      
+
       def enabled?
         @status == "enabled"
       end
-      
+
       def disabled?
         !enabled?
       end
@@ -453,18 +452,18 @@ module Sidekiq
       # to string array.
       def parse_args(args)
         case args
-        when String
-          begin
-            Sidekiq.load_json(args)
-          rescue JSON::ParserError
-            [*args]   # cast to string array
-          end
-        when Hash
-          [args]      # just put hash into array
-        when Array
-          args        # do nothing, already array
-        else
-          [*args]     # cast to string array
+          when String
+            begin
+              Sidekiq.load_json(args)
+            rescue JSON::ParserError
+              [*args]   # cast to string array
+            end
+          when Hash
+            [args]      # just put hash into array
+          when Array
+            args        # do nothing, already array
+          else
+            [*args]     # cast to string array
         end
       end
 
